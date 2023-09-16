@@ -16,12 +16,14 @@ if test "$(rclone ls --max-depth 1 $SYNC_SRC $RCLONE_OPTS)"; then
   # it can be synced without clear data loss
   echo "INFO: Starting rclone sync $SYNC_SRC $SYNC_DEST $RCLONE_OPTS $SYNC_OPTS"
   rclone sync $SYNC_SRC $SYNC_DEST $RCLONE_OPTS $SYNC_OPTS
+  rclone rmdirs $SYNC_SRC
+  rclone rmdirs $SYNC_DEST
 
   if [ -z "$CHECK_URL" ]
   then
     echo "INFO: Define CHECK_URL with https://healthchecks.io to monitor sync job"
   else
-    wget $CHECK_URL -O /dev/null
+    curl -fsS -m 10 --retry 5 -o /dev/null $CHECK_URL
   fi
 else
   echo "WARNING: Source directory is empty. Skipping sync command."
